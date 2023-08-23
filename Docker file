@@ -1,0 +1,28 @@
+# Use an official Ubuntu as a parent image
+FROM ubuntu:20.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update package list and install required dependencies
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:open5gs/latest && \
+    apt-get update && \
+    apt-get install -y open5gs
+
+# Expose ports for Open5GS
+EXPOSE 80 3000 36412 36422 2152/udp
+
+# Copy Open5GS configuration files (you will need to have these files prepared)
+COPY open5gs.conf /etc/open5gs/
+COPY open5gs.yaml /etc/open5gs/
+COPY amf.yaml /etc/open5gs/
+COPY smf.yaml /etc/open5gs/
+COPY hss.yaml /etc/open5gs/
+
+# Set the working directory
+WORKDIR /root/open5gs
+
+# Start Open5GS when the container starts
+CMD ["open5gs", "upf"]
